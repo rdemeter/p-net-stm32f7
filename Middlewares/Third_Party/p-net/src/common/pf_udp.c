@@ -66,8 +66,6 @@ int pf_udp_recvfrom (
    uint8_t * data,
    int size)
 {
-   printf("    pf_udp_recvfrom src_port=0x%X, size=%d\n", src_port, size);
-
    return pnal_udp_recvfrom (id, src_addr, src_port, data, size);
 }
 

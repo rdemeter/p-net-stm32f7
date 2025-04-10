@@ -1535,9 +1535,6 @@ static int pf_dcp_identify_req (
       goto out1;
    }
 
-   printf("alloc p_rsp=%p\n", p_rsp);
-
-
    /* Prepare the response */
    p_dst = (uint8_t *)p_rsp->payload;
    dst_pos = 0;
@@ -1608,8 +1605,6 @@ static int pf_dcp_identify_req (
             &block_error) == 0)
 
       {
-    	  printf("          p_src_block_hdr->option=%d\n", p_src_block_hdr->option);
-
          switch (p_src_block_hdr->option)
          {
          case PF_DCP_OPT_ALL:
@@ -1937,6 +1932,15 @@ static int pf_dcp_identify_req (
          mac_address,
          ntohs (p_src_dcphdr->response_delay_factor));
 
+      if(pf_eth_send_on_management_port (net, p_rsp) == 0)
+      {
+         LOG_ERROR (
+            PF_DCP_LOG,
+            "DCP(%d): Failed to response to DCP identity request\n",
+            __LINE__);
+      }
+
+#if 0
       if (
          pf_scheduler_add (
             net,
@@ -1974,6 +1978,7 @@ static int pf_dcp_identify_req (
 
          pnal_buf_free (p_rsp);
       }
+#endif
    }
    else
    {
@@ -1999,6 +2004,12 @@ out1:
    {
 
       pnal_buf_free (p_buf);
+   }
+
+   if(p_rsp != NULL)
+   {
+
+      pnal_buf_free (p_rsp);
    }
 
    return 1; /* Means: handled */

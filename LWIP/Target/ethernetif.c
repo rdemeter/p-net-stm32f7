@@ -277,7 +277,12 @@ static void low_level_init(struct netif *netif)
 /* USER CODE END OS_THREAD_DEF_CREATE_CMSIS_RTOS_V1 */
 
 /* USER CODE BEGIN PHY_PRE_CONFIG */
-
+  /* Pass all multicast */
+  ETH_MACFilterConfigTypeDef pFilterConfig = {0};
+  HAL_ETH_GetMACFilterConfig(&heth, &pFilterConfig);
+  pFilterConfig.ReceiveAllMode =ENABLE;
+  pFilterConfig.PassAllMulticast =ENABLE;
+  HAL_ETH_SetMACFilterConfig(&heth, &pFilterConfig);
 /* USER CODE END PHY_PRE_CONFIG */
   /* Set PHY IO functions */
   LAN8742_RegisterBusIO(&LAN8742, &LAN8742_IOCtx);

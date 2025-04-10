@@ -170,14 +170,14 @@ int app_start (app_data_t * app, app_run_in_separate_task_t task_config)
    APP_LOG_INFO ("Start sample application main loop\n");
    if (app == NULL)
    {
-	  printf ("app == NULL, Aborting application\n");
+      APP_LOG_ERROR ("app == NULL, Aborting application\n");
       return -1;
    }
 
    app->main_events = os_event_create();
    if (app->main_events == NULL)
    {
-	  printf ("main_events == NULL, Aborting application\n");
+      APP_LOG_ERROR ("main_events == NULL, Aborting application\n");
       return -1;
    }
 
@@ -189,12 +189,11 @@ int app_start (app_data_t * app, app_run_in_separate_task_t task_config)
 
    if (app->main_timer == NULL)
    {
-	  printf ("main_timer == NULL, Aborting application\n");
+      APP_LOG_ERROR ("main_timer == NULL, Aborting application\n");
       os_event_destroy (app->main_events);
       return -1;
    }
 
-   printf ("start main_timer\n");
    os_timer_start (app->main_timer);
 
    if (task_config == RUN_IN_SEPARATE_THREAD)
@@ -208,7 +207,7 @@ int app_start (app_data_t * app, app_run_in_separate_task_t task_config)
    }
    else
    {
-	   app_loop_forever (app);
+      app_loop_forever (app);
    }
 
    return 0;
@@ -1575,20 +1574,15 @@ void app_loop_forever (void * arg)
 
    app_set_led (APP_DATA_LED_ID, false);
    app_plug_dap (app, app->pnet_cfg->num_physical_ports);
-   printf("Waiting for PLC connect request\n\n");
+   APP_LOG_INFO ("Waiting for PLC connect request\n\n");
 
    /* Main event loop */
    for (;;)
    {
-      // test
-//      printf("xPortGetFreeHeapSize = %d\r\n", xPortGetFreeHeapSize());
-//      printf("xPortGetMinimumEverFreeHeapSize = %d\r\n",xPortGetMinimumEverFreeHeapSize());
-	  printf("[app_loop_forever] os_event_wait forever ...\n");
-
       os_event_wait (app->main_events, mask, &flags, OS_WAIT_FOREVER);
       if (flags & APP_EVENT_READY_FOR_DATA)
       {
-    	 printf("[app_loop_forever] APP_EVENT_READY_FOR_DATA\n");
+         APP_LOG_INFO ("[app_loop_forever] APP_EVENT_READY_FOR_DATA\n");
 
          os_event_clr (app->main_events, APP_EVENT_READY_FOR_DATA);
 
@@ -1596,7 +1590,7 @@ void app_loop_forever (void * arg)
       }
       else if (flags & APP_EVENT_ALARM)
       {
-    	 printf("[app_loop_forever] APP_EVENT_ALARM\n");
+         APP_LOG_INFO ("[app_loop_forever] APP_EVENT_ALARM\n");
 
          os_event_clr (app->main_events, APP_EVENT_ALARM);
 
@@ -1607,13 +1601,13 @@ void app_loop_forever (void * arg)
       }
       else if (flags & APP_EVENT_TIMER)
       {
-    	 printf("[app_loop_forever] APP_EVENT_TIMER\n");
+         //APP_LOG_INFO ("[app_loop_forever] APP_EVENT_TIMER\n");
          os_event_clr (app->main_events, APP_EVENT_TIMER);
 
          update_button_states (app);
          if (app_is_connected_to_controller (app))
          {
-        	printf("[app_loop_forever] app_is_connected_to_controller!!\n ");
+            printf("[app_loop_forever] app_is_connected_to_controller!!\n ");
             app_handle_cyclic_data (app);
          }
 
@@ -1631,7 +1625,7 @@ void app_loop_forever (void * arg)
       }
       else if (flags & APP_EVENT_ABORT)
       {
-    	  APP_LOG_DEBUG("[app_loop_forever] APP_EVENT_ABORT\n");
+         APP_LOG_INFO ("[app_loop_forever] APP_EVENT_ABORT\n");
 
          os_event_clr (app->main_events, APP_EVENT_ABORT);
 
@@ -1640,6 +1634,6 @@ void app_loop_forever (void * arg)
          APP_LOG_DEBUG ("Connection closed\n");
          APP_LOG_DEBUG ("Waiting for PLC connect request\n\n");
       }
-       osDelay(1);
+      // osDelay(1);
    }
 }
